@@ -56,7 +56,7 @@ def create_session(request):
         
 
 # Promnpt API
-@bp.route('/api/session/prompt/<session_id>', methods=['POST'])
+@bp.route('/api/session/prompt/create/<session_id>', methods=['POST'])
 def create_prompt(session_id, request):
     """Method to upload new prompt to the relevant session
 
