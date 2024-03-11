@@ -37,6 +37,7 @@ class DatasetInfo(Document):
 
 class DatasetPred(Document):
     pred_dir_url = URLField(required=True)
+    pred_res_doc_url = URLField(required=True)
     pred_res_npy_url = URLField(required=True)
     pred_fig_dir_url = URLField(required=True)
 
