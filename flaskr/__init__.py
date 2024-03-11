@@ -2,7 +2,9 @@ import os
 
 from flask import Flask
 from . import db
-from .api import bp
+
+from .api import bp as api_bp
+from .models import bp as models_bp
 
 MONGO_URI = 'mongodb://localhost:27017/db_ieee-ies-2024'
 
@@ -15,7 +17,8 @@ def create_app(test_config=None):
     app.db = db.get_db()
 
     # register blueprint
-    app.register_blueprint(bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(models_bp)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
