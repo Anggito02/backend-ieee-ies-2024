@@ -1,6 +1,8 @@
 from flaskr.tools.helper import SessionHelper, DatasetInfoHelper,allowed_files
 from flaskr.tools.enums import ExceptionEnum
 
+from models.iTransformer.main import ModelRunner
+
 class SessionController:
     def __init__(self):
         pass
@@ -29,6 +31,9 @@ class SessionController:
 
             # Save dataset
             dataset_info_helper.save_document(dataset, extension)
+
+            # Create iTransformer runner
+            
 
         except Exception as e:
             if (str(e) in [member.value for member in ExceptionEnum]):

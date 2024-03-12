@@ -54,8 +54,20 @@ class DatasetInfoHelper:
                 df = pl.read_excel(os.path.join(self.dataset_path, f'dataset.xlsx'))
                 df.write_csv(os.path.join(self.dataset_path, 'dataset.csv'))
 
+            self.get_document_info()
+
         except Exception:
             raise Exception
+        
+    def get_document_info(self):
+        try:
+            df = pl.read_csv(os.path.join(self.dataset_path, 'dataset.csv'))
+            self.features_des = list(df.columns[1:])
+            self.features_amount = len(self.features_des)
+            self.freq = 'h'
+        except:
+            raise Exception
+
         
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
