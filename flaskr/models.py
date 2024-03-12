@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from mongoengine import Document, StringField, DateTimeField, URLField, ReferenceField, BooleanField, IntField, ListField, EnumField, CASCADE
+from mongoengine import Document, StringField, DateTimeField, ReferenceField, BooleanField, IntField, ListField, EnumField, CASCADE
 
 from datetime import datetime
 from flaskr.tools.enums import FreqEnum
@@ -27,7 +27,7 @@ class PromptResInit(Document):
 
 class DatasetInfo(Document):
     dataset_name = StringField(required=True)
-    dataset_url = URLField(required=True)
+    dataset_path = StringField(required=True)
 
     features_amount = IntField()
     features_des = ListField(StringField(max_length=20))
@@ -36,14 +36,13 @@ class DatasetInfo(Document):
     created_at = DateTimeField(default=datetime.utcnow)
 
 class DatasetPred(Document):
-    pred_dir_url = URLField(required=True)
-    pred_res_doc_url = URLField(required=True)
-    pred_res_npy_url = URLField(required=True)
-    pred_fig_dir_url = URLField(required=True)
+    pred_dir_path = StringField(required=True)
+    pred_res_doc_path = StringField(required=True)
+    pred_res_npy_path = StringField(required=True)
+    pred_fig_dir_path = StringField(required=True)
 
 class ChatSession(Document):
     session_id = StringField(required=True, unique=True)
-    document_url = URLField(required=True)
 
     prompts = ReferenceField('PromptInit', reverse_delete_rule=CASCADE)
     results = ReferenceField('PromptResInit', reverse_delete_rule=CASCADE)

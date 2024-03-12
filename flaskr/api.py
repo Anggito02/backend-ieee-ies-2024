@@ -1,18 +1,19 @@
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, jsonify, request
 
-from .Controllers.SessionController import SessionController
+from flaskr.Controllers.SessionController import SessionController
+from flaskr.tools.enums import ExceptionEnum
 
 bp = Blueprint('api_bp', __name__)
 sessionController = SessionController()
 
 # Session API
 @bp.route('/api/session/create', methods=['POST'])
-def create_session(request):
+def create_session():
     """Method to create new session. Upload the source document to
     predict
 
     Args:
-        request (json): json object containing uploaded document info
+        request: dataset document
 
     Raises:
         Exception: Any error occured in the backend
@@ -24,20 +25,20 @@ def create_session(request):
             message: "Session created successfully"
             data: {
                 session_id: chat's session id
-                document_url: document server url
+                document_path: document server path
                 prompts: list of initial prompts [warning, solution, insight]
                 results: list of initial results [warning, solution, insight]
                 dataset_info: {
                     dataset_name: dataset name
-                    dataset_url: dataset server url
+                    dataset_path: dataset server path
                     features_amount: number of features
                     features_des: list of features description
                     freq: step/frequency of data point
                 }
                 preds: {
-                    preds_dir_url: predictions server url
-                    preds_res_npy_url: predictions result npy server url
-                    preds_fig_dir_url: predictions figures server url
+                    preds_dir_path: predictions server path
+                    preds_res_npy_path: predictions result npy server path
+                    preds_fig_dir_path: predictions figures server path
                 }
                 created_at: creation time
             }
@@ -56,13 +57,12 @@ def create_session(request):
         
 
 # Promnpt API
-@bp.route('/api/session/prompt/create/<session_id>', methods=['POST'])
-def create_prompt(session_id, request):
+@bp.route('/api/session/prompt/create/', methods=['POST'])
+def create_prompt():
     """Method to upload new prompt to the relevant session
 
     Args:
         session_id (str): session id
-        request (json): json object containing user prompt
 
     Raises:
         Exception: Any error occured in the backend
@@ -80,6 +80,7 @@ def create_prompt(session_id, request):
         }
     """
     try:
+        session_id = request.args.get('session_id') 
         response = sessionController.create_prompt(session_id, request)
 
         return jsonify({

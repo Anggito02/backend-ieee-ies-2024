@@ -1,10 +1,10 @@
 import os
 
 from flask import Flask
-from . import db
+from flaskr import db
 
-from .api import bp as api_bp
-from .models import bp as models_bp
+from flaskr.api import bp as api_bp
+from flaskr.models import bp as models_bp
 
 MONGO_URI = 'mongodb://localhost:27017/db_ieee-ies-2024'
 
