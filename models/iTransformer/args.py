@@ -3,6 +3,7 @@ class Args:
                  result_data_path, freq, features):
         self.root_path = dataset_dir_path
         self.data_path = 'dataset.csv'
+        self.result_data_path = result_data_path
 
         self.model = 'iTransformer'
         self.freq = freq
@@ -37,6 +38,5 @@ class Args:
         self.gpu = 0
         self.devices = 0
 
-        self.result_data_path = result_data_path
 
 

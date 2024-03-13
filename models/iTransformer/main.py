@@ -19,7 +19,7 @@ class ModelRunner:
     def run(self):
         try:
             exp = Exp_Long_Term_Forecast(self.args)
-            exp.predict()
+            return exp.predict()
             torch.cuda.empty_cache()
             return True
         except:

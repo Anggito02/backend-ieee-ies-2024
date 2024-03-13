@@ -4,6 +4,7 @@ import torch.nn as nn
 import os
 import warnings
 import numpy as np
+import pandas as pds
 
 from models.iTransformer.data_provider.data_factory import data_provider
 from models.iTransformer.experiments.exp_basic import Exp_Basic
@@ -95,13 +96,27 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                     visual(gt, pd, date_pred, feats[i], os.path.join(feat_path, 'preds.png'))
 
-            preds = np.array(preds)
-            preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+            preds = np.concatenate((input, outputs), axis=1)
+            preds = preds.squeeze(0)
+            df_preds = pds.DataFrame(preds, columns=feats)
 
-            # result save 
-            preds.tofile(os.path.join(folder_path, 'real_prediction.csv'), sep=',')
-            np.save(os.path.join(folder_path, 'real_prediction.npy'), preds)
+            date_pred = pds.to_datetime(date_pred)
+            df_preds.insert(0, 'date', date_pred)
+
+            tmp_npy_preds = np.zeros((preds.shape[0], preds.shape[1] + 1))
+            tmp_npy_preds[:, 0] = date_pred
+            tmp_npy_preds[:, 1:] = preds
+
+            npy_preds = np.zeros((tmp_npy_preds.shape[0] + 1, tmp_npy_preds.shape[1]))
+            npy_preds[0, :] = feats.insert(0, 'date')
+            npy_preds[1:, :] = tmp_npy_preds
+
+            # Save preds
+            df_preds.to_csv(os.path.join(self.args.result_data_path, 'preds.csv'), index=False)
+            df_preds.to_excel(os.path.join(self.args.result_data_path, 'preds.xlsx'), index=False)
+            np.save(os.path.join(self.args.result_data_path, 'preds.npy'), npy_preds)
 
             return
+
         except:
             raise Exception
