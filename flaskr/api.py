@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Blueprint, jsonify, request
 
 from flaskr.Controllers.SessionController import SessionController
@@ -53,7 +55,12 @@ def create_session():
             'data': response
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        traceback.print_exc()
+        return jsonify({
+                'success': False,
+                'message': 'An unexpected error occurred',
+                'error': str(e)  # Include the error message for debugging purposes
+            }), 500
         
 
 # Promnpt API

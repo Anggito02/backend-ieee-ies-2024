@@ -22,7 +22,7 @@ class SessionHelper:
     
     def create_session_dir(self) -> str:
         try:
-            session_path = os.path.join('.', 'resources', 'public', self.session_id)
+            session_path = os.path.join('resources', 'public', self.session_id)
 
             if not os.path.exists(session_path):
                 os.makedirs(session_path)
@@ -40,6 +40,7 @@ class DatasetInfoHelper:
         self.session_path = session_path
         self.dataset_name = None
         self.dataset_path = None
+        self.result_path = None
         self.features_amount = None
         self.features_des = []
         self.freq = None
@@ -48,6 +49,7 @@ class DatasetInfoHelper:
         try:
             self.dataset_name = document.filename
             self.dataset_path = os.path.join(self.session_path, 'input')
+            self.result_path = os.path.join(self.session_path, 'results')
             document.save(os.path.join(self.dataset_path, f'dataset.{extension}'))
 
             if extension == 'xlsx':

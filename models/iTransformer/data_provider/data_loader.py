@@ -34,60 +34,62 @@ class Dataset_Pred(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
-        '''
-        df_raw.columns: ['date', ...(other features), target feature]
-        '''
-        self.feats = list(df_raw.columns)
-        self.feats.remove('date')
+        try:
+            self.scaler = StandardScaler()
+            df_raw = pd.read_csv(os.path.join(self.root_path, self.data_path))
+            '''
+            df_raw.columns: ['date', ...(other features), target feature]
+            '''
+            self.feats = list(df_raw.columns)
+            self.feats.remove('date')
 
-        if self.cols:
-            cols = self.cols.copy()
-            cols.remove(self.target)
-        else:
-            cols = list(df_raw.columns)
-            cols.remove('date')
-        border1 = len(df_raw) - self.seq_len
-        border2 = len(df_raw)
+            if self.cols:
+                cols = self.cols.copy()
+                cols.remove(self.target)
+            else:
+                cols = list(df_raw.columns)
+                cols.remove('date')
+            border1 = len(df_raw) - self.seq_len
+            border2 = len(df_raw)
 
 
-        cols_data = df_raw.columns[1:]
-        df_data = df_raw[cols_data]
+            cols_data = df_raw.columns[1:]
+            df_data = df_raw[cols_data]
 
-        if self.scale:
-            self.scaler.fit(df_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+            if self.scale:
+                self.scaler.fit(df_data.values)
+                data = self.scaler.transform(df_data.values)
+            else:
+                data = df_data.values
 
-        tmp_stamp = df_raw[['date']][border1:border2]
-        tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
-        pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len + 1, freq=self.freq)
+            tmp_stamp = df_raw[['date']][border1:border2]
+            tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
+            pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len + 1, freq=self.freq)
 
-        df_stamp = pd.DataFrame(columns=['date'])
-        df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
-        data_date = np.array(df_stamp.date)
-        if self.timeenc == 0:
-            df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
-            df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
-            df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
-            df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
-            df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
-            df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
-            data_stamp = df_stamp.drop(['date'], 1).values
-        elif self.timeenc == 1:
-            data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
-            data_stamp = data_stamp.transpose(1, 0)
+            df_stamp = pd.DataFrame(columns=['date'])
+            df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
+            data_date = np.array(df_stamp.date)
+            if self.timeenc == 0:
+                df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+                df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+                df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+                df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+                df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+                df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
+                data_stamp = df_stamp.drop(['date'], 1).values
+            elif self.timeenc == 1:
+                data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
+                data_stamp = data_stamp.transpose(1, 0)
 
-        self.data_x = data[border1:border2]
-        if self.inverse:
-            self.data_y = df_data.values[border1:border2]
-        else:
-            self.data_y = data[border1:border2]
-        self.data_stamp = data_stamp
-        self.data_date = (data_date - np.datetime64('1970-01-01T00:00:00.000000000')) / np.timedelta64(1, 's')
+            self.data_x = data[border1:border2]
+            if self.inverse:
+                self.data_y = df_data.values[border1:border2]
+            else:
+                self.data_y = data[border1:border2]
+            self.data_stamp = data_stamp
+            self.data_date = (data_date - np.datetime64('1970-01-01T00:00:00.000000000')) / np.timedelta64(1, 's')
+        except:
+            raise Exception
 
     def __getitem__(self, index):
         s_begin = index
