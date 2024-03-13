@@ -1,11 +1,13 @@
 import os
 import uuid
+import datetime
 import polars as pl
 
 class SessionHelper:
     def __init__(self):
         self.session_id = self.create_session_id()
         self.session_path = self.create_session_dir()
+        self.created_at = datetime.datetime.now()
 
     def get_session_id(self):
         return self.session_id
@@ -70,7 +72,15 @@ class DatasetInfoHelper:
         except:
             raise Exception
 
-        
+    
+class DatasetPredHelper:
+    def __init__(self, session_path):
+        self.session_path = session_path
+        self.preds_dir_path = os.path.join(self.session_path, 'results')
+        self.preds_res_doc_path = os.path.join(self.preds_dir_path, 'preds.xlsx')
+        self.preds_res_npy_path = os.path.join(self.preds_dir_path, 'preds.npy')
+        self.preds_fig_dir_path = os.path.join(self.preds_dir_path, 'fig')
+
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
 def allowed_files(filename):

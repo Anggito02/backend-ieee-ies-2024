@@ -27,7 +27,6 @@ def create_session():
             message: "Session created successfully"
             data: {
                 session_id: chat's session id
-                document_path: document server path
                 prompts: list of initial prompts [warning, solution, insight]
                 results: list of initial results [warning, solution, insight]
                 dataset_info: {
@@ -59,7 +58,7 @@ def create_session():
         return jsonify({
                 'success': False,
                 'message': 'An unexpected error occurred',
-                'error': str(e)  # Include the error message for debugging purposes
+                'error': str(e)
             }), 500
         
 
