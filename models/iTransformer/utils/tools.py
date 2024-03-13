@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+plt.switch_backend('agg')
+
 def visual(true, preds=None, date_data=None, title='', name='./pic/test.png'):
     """
     Results visualization
@@ -42,4 +44,3 @@ def visual(true, preds=None, date_data=None, title='', name='./pic/test.png'):
 
     plt.tight_layout()
     plt.savefig(name, bbox_inches='tight')
-    plt.close()
