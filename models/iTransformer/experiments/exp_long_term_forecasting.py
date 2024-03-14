@@ -85,8 +85,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 preds.append(outputs)
 
                 feats = pred_data.feats
-
-                for i in range(self.args.enc_in):
+                feat_idx = self.args.enc_in if feats[-1] != "OT" else self.args.enc_in - 1
+                
+                for i in range(feat_idx):
                     gt = input[0, :, i]
                     pd = np.concatenate((input[0, :, i], outputs[0, :, i]), axis=0)
 
