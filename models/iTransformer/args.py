@@ -8,9 +8,9 @@ class Args:
         self.model = 'iTransformer'
         self.freq = freq
 
-        self.seq_len = 36
-        self.label_len = 18
-        self.pred_len = 24
+        self.seq_len = 96
+        self.label_len = 48
+        self.pred_len = 48
         
         self.enc_in = features
         self.dec_in = features
