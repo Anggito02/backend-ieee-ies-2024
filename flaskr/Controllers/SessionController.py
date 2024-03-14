@@ -1,4 +1,4 @@
-from flaskr.tools.helper import SessionHelper, DatasetInfoHelper, DatasetPredHelper, allowed_files
+from flaskr.tools.helper import SessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files
 from flaskr.tools.enums import ExceptionEnum
 
 from models.iTransformer.main import ModelRunner as iTransformerRunner
@@ -46,16 +46,32 @@ class SessionController:
             # Create dataset pred helper
             dataset_pred_helper = DatasetPredHelper(session_helper.session_path)
 
-            # Create prompt
+            # Create init prompt helper
+            init_prompt_helper = InitPromptHelper()
+            
+            init_prompt_helper.set_prompt_warning(dataset_pred_helper.preds_res_csv_path, dataset_info_helper.features_des)
 
-            # Run Mistral
+            # Run Mistral for warning
+
+            # Run Mistral for solution
+            init_prompt_helper.set_prompt_solution("__WARNING_RES__")
+
+            # Run Mistral for insight
 
             # Return result
             result = {
                 'session_id': session_helper.session_id,
                 'document_path': dataset_info_helper.dataset_path,
-                'prompts': ['warning', 'solution', 'insight'],
-                'results': ['warning', 'solution', 'insight'],
+                'prompts': {
+                    'warning': init_prompt_helper.prompt_warning,
+                    'solution': init_prompt_helper.prompt_solution,
+                    'insight': init_prompt_helper.prompt_insight
+                },
+                'results': {
+                    'warning': init_prompt_helper.res_warning,
+                    'solution': init_prompt_helper.res_solution,
+                    'insight': init_prompt_helper.res_insight
+                },
                 'dataset_info': {
                     'dataset_name': dataset_info_helper.dataset_name,
                     'dataset_path': dataset_info_helper.dataset_path,

@@ -38,6 +38,7 @@ class DatasetInfo(Document):
 class DatasetPred(Document):
     pred_dir_path = StringField(required=True)
     pred_res_doc_path = StringField(required=True)
+    pred_res_csv_path = StringField(required=True)
     pred_res_npy_path = StringField(required=True)
     pred_fig_dir_path = StringField(required=True)
 
