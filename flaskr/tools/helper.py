@@ -10,7 +10,7 @@ DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getti
 
 DEFAULT_SOLUTION_PROMPT = "Now, your goal is to get the solution from the warning insight that you gave. The solution should be give in a list format briefly and clearly. Below is the warning insight that you gave already gave before\n\n __WARNING_RES__"
 
-DEFAULT_INSIGHT_PROMPT = "After this warning and solution you gave to the user, the user still need your help as a data analyst. The user need a general insight the user's data. Your goal is to get a general insight of the user's data. The insight should be give in a list format briefly and clearly."
+DEFAULT_INSIGHT_PROMPT = "After this warning and solution you gave to the user,  your goal is to get a general insight of the user's data. The insight should be give in a list format briefly and clearly."
 
 class SessionHelper:
     def __init__(self):
