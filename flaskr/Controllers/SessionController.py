@@ -46,6 +46,9 @@ class SessionController:
             # Create dataset pred helper
             dataset_pred_helper = DatasetPredHelper(session_helper.session_path)
 
+            # Zip results
+            session_helper.zip_session_files(dataset_info_helper.result_path)
+
             # Create init prompt helper
             init_prompt_helper = InitPromptHelper()
             

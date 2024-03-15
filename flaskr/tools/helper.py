@@ -3,6 +3,7 @@ import uuid
 import datetime
 import polars as pl
 import pandas as pd
+import zipfile
 
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
@@ -44,6 +45,30 @@ class SessionHelper:
             return session_path
         except:
             raise Exception('Failed to create session directory')
+        
+    def zip_session_files(self, result_dir_path):
+        try:
+            if not os.path.exists(os.path.join(result_dir_path, 'zipped')):
+                os.makedirs(os.path.join(result_dir_path, 'zipped'))
+
+            fig_dir_path = os.path.join(result_dir_path, 'fig')
+            zip_dir_path = os.path.join(result_dir_path, 'zipped')
+
+            # Zip images
+            with zipfile.ZipFile(os.path.join(zip_dir_path, 'fig.zip'), 'w') as zip:
+                for root, dirs, files in os.walk(result_dir_path):
+                    for dir in dirs:
+                        if dir != 'zipped':
+                            zip.write(os.path.join(root, dir), os.path.relpath(os.path.join(root, dir), result_dir_path))
+
+            # Zip documents
+            with zipfile.ZipFile(os.path.join(zip_dir_path, 'doc.zip'), 'w') as zip:
+                for root, dirs, files in os.walk(result_dir_path):
+                    for file in files:
+                        if file.split('.')[-1] in ALLOWED_EXTENSIONS:
+                            zip.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), result_dir_path))
+        except:
+            raise Exception('Failed to zip session files')
             
 
 class DatasetInfoHelper:

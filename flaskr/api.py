@@ -1,6 +1,7 @@
+import os
 import traceback
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 
 from flaskr.Controllers.SessionController import SessionController
 from flaskr.tools.enums import ExceptionEnum
@@ -11,7 +12,7 @@ sessionController = SessionController()
 # Session API
 @bp.route('/api/session/create', methods=['POST'])
 def create_session():
-    """Method to create new session. Upload the source document to
+    """API to create new session. Upload the source document to
     predict
 
     Args:
@@ -65,7 +66,7 @@ def create_session():
 # Promnpt API
 @bp.route('/api/session/prompt/create/', methods=['POST'])
 def create_prompt():
-    """Method to upload new prompt to the relevant session
+    """API to upload new prompt to the relevant session
 
     Args:
         session_id (str): session id
