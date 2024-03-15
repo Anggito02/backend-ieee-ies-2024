@@ -1,4 +1,7 @@
-from flaskr.tools.helper import SessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files
+from flask import send_from_directory
+
+from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files, get_session_zip_result_path
+
 from flaskr.tools.enums import ExceptionEnum
 
 from models.iTransformer.main import ModelRunner as iTransformerRunner
@@ -24,10 +27,10 @@ class SessionController:
                 raise Exception(ExceptionEnum.EXTENSION_NOT_ALLOWED.value)
             
             # Create session helper and id
-            session_helper = SessionHelper()
+            init_session_helper = InitSessionHelper()
 
             # Create dataset info helper
-            dataset_info_helper = DatasetInfoHelper(session_helper.session_path)
+            dataset_info_helper = DatasetInfoHelper(init_session_helper.session_path)
 
             # Save dataset
             dataset_info_helper.save_document(dataset, extension)
@@ -44,10 +47,10 @@ class SessionController:
             iTransformer_runner.run()
 
             # Create dataset pred helper
-            dataset_pred_helper = DatasetPredHelper(session_helper.session_path)
+            dataset_pred_helper = DatasetPredHelper(init_session_helper.session_path)
 
             # Zip results
-            session_helper.zip_session_files(dataset_info_helper.result_path)
+            init_session_helper.zip_session_files(dataset_info_helper.result_path)
 
             # Create init prompt helper
             init_prompt_helper = InitPromptHelper()
@@ -63,7 +66,7 @@ class SessionController:
 
             # Return result
             result = {
-                'session_id': session_helper.session_id,
+                'session_id': init_session_helper.session_id,
                 'document_path': dataset_info_helper.dataset_path,
                 'prompts': {
                     'warning': init_prompt_helper.prompt_warning,
@@ -87,7 +90,7 @@ class SessionController:
                     'preds_res_npy_path': dataset_pred_helper.preds_res_npy_path,
                     'preds_fig_dir_path': dataset_pred_helper.preds_fig_dir_path
                 },
-                'created_at': session_helper.created_at
+                'created_at': init_session_helper.created_at
             }
 
             return result
@@ -100,3 +103,15 @@ class SessionController:
     
     def create_prompt(self, session_id, request):
         return session_id, request
+    
+    def download_images(self, session_id):
+        # Get session result path
+        result_zip_path = get_session_zip_result_path(session_id)
+
+        return send_from_directory(result_zip_path, 'fig.zip', as_attachment=True, mimetype='application/zip', download_name='result_images.zip')
+
+    def download_docs(self, session_id):
+        # Get session result path
+        result_zip_path = get_session_zip_result_path(session_id)
+
+        return send_from_directory(result_zip_path, 'doc.zip', as_attachment=True, mimetype='application/zip', download_name='result_documents.zip')

@@ -1,7 +1,4 @@
-import os
-import traceback
-
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, request
 
 from flaskr.Controllers.SessionController import SessionController
 from flaskr.tools.enums import ExceptionEnum
@@ -55,7 +52,6 @@ def create_session():
             'data': response
         }), 200
     except Exception as e:
-        traceback.print_exc()
         return jsonify({
                 'success': False,
                 'message': 'An unexpected error occurred',
@@ -97,3 +93,46 @@ def create_prompt():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+# Download prediction images API
+@bp.route('/api/session/download/images', methods=['GET'])
+def download_images():
+    """API to download prediction images
+
+    Args:
+        session_id (str): session id
+
+    Raises:
+        Exception: Any error occured in the backend
+
+    Returns:
+        (images): prediction images
+    """
+    try:
+        session_id = request.args.get('session_id')
+        return sessionController.download_images(session_id)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# Download prediction docs API
+@bp.route('/api/session/download/docs', methods=['GET'])
+def download_docs():
+    """API to download prediction docs
+
+    Args:
+        session_id (str): session id
+
+    Raises:
+        Exception: Any error occured in the backend
+
+    Returns:
+        (docs): prediction docs
+    """
+    try:
+        session_id = request.args.get('session_id')
+        return sessionController.download_docs(session_id)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    

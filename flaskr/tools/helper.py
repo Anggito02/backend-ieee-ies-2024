@@ -13,7 +13,7 @@ DEFAULT_SOLUTION_PROMPT = "Now, your goal is to get the solution from the warnin
 
 DEFAULT_INSIGHT_PROMPT = "After this warning and solution you gave to the user,  your goal is to get a general insight of the user's data. The insight should be give in a list format briefly and clearly."
 
-class SessionHelper:
+class InitSessionHelper:
     def __init__(self):
         self.session_id = self.create_session_id()
         self.session_path = self.create_session_dir()
@@ -171,3 +171,6 @@ class InitPromptHelper:
 def allowed_files(filename):
     extension = filename.rsplit('.', 1)[1].lower()
     return '.' in filename and extension in ALLOWED_EXTENSIONS, extension
+
+def get_session_zip_result_path(session_id):
+    return os.path.join(os.getcwd(), 'resources', 'public', session_id, 'results', 'zipped')
