@@ -61,7 +61,7 @@ def create_session():
 
 # Promnpt API
 @bp.route('/api/session/prompt/create/', methods=['POST'])
-def create_prompt():
+def create_cont_prompt():
     """API to upload new prompt to the relevant session
 
     Args:
@@ -84,7 +84,7 @@ def create_prompt():
     """
     try:
         session_id = request.args.get('session_id') 
-        response = sessionController.create_prompt(session_id, request)
+        response = sessionController.create_cont_prompt(session_id, request)
 
         return jsonify({
             'success': True,

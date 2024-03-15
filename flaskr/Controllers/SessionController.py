@@ -101,8 +101,18 @@ class SessionController:
             else:
                 raise Exception
     
-    def create_prompt(self, session_id, request):
-        return session_id, request
+    def create_cont_prompt(self, session_id, request):
+        try:
+            prompt = request.json['prompt']
+            # Get Mistral Session Object
+            # mistral = Mistral(session_id)
+
+            # Run Mistral
+            # result = mistral.run(r)
+            result = "This is result from API"
+            return result
+        except:
+            pass
     
     def download_images(self, session_id):
         # Get session result path
