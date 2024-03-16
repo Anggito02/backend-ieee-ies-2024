@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 from flask import Flask
 from flaskr import db
@@ -6,7 +7,9 @@ from flaskr import db
 from flaskr.api import bp as api_bp
 from flaskr.models import bp as models_bp
 
-MONGO_URI = 'mongodb://localhost:27017/db_ieee-ies-2024'
+load_dotenv()
+
+MONGO_URI = os.getenv('MONGO_URI')
 
 def create_app(test_config=None):
     # create and configure the app

@@ -10,3 +10,4 @@ dist/
 venv/
 instance
 resources/public
+.env
