@@ -26,7 +26,7 @@ USE_GPU=True || USE_GPU=False
 1. Use Python 3.8 above to run this project
 2. Install requirements
 ```
-bash pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 3. Run the project
