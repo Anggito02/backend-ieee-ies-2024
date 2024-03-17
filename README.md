@@ -15,7 +15,7 @@
 ```
 MONGO_URI='mongodb://localhost:27017/db_name'
 ```
-3. Initialize `USE_GPU` environment to use GPU or CPU
+3. Initialize `USE_GPU` environment to use **GPU** or **CPU**
 ```
 USE_GPU=True || USE_GPU=False
 ```
