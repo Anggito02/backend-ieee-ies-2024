@@ -9,6 +9,10 @@
 
 ![Tux, the Linux mascot](/resources/assets/new_connection.png)
 
+### Install CUDA
+1. Downlaod **CUDA 11.8** at [https://developer.nvidia.com/cuda-11-8-0-download-archive](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+2. Download version that suitable with the OS
+
 ### Initialize .env
 1. Create a `.env` file in the root project
 2. Initialize `MONGO_URI` environment variables for example
@@ -29,7 +33,12 @@ USE_GPU=True || USE_GPU=False
 pip install -r requirements.txt
 ```
 
-3. Run the project
+3. Install PyTorch CUDA for CUDA 11.8
+```
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```   
+
+5. Run the project
 ```
 python run.py
 ```
