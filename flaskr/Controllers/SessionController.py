@@ -1,6 +1,6 @@
 from flask import send_from_directory
 
-from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files, get_session_zip_result_path
+from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
 
 from flaskr.tools.enums import ExceptionEnum
 
@@ -115,11 +115,11 @@ class SessionController:
             pass
     
     def download_images(self, session_id):
-        # Get session result path
-        result_zip_path = get_session_zip_result_path(session_id)
+        # Get fig result path
+        fig_result_path = get_session_fig_result_path(session_id)
 
-        return send_from_directory(result_zip_path, 'fig.zip', as_attachment=True, mimetype='application/zip', download_name='result_images.zip')
-
+        return get_all_fig_objects(fig_result_path)
+    
     def download_docs(self, session_id):
         # Get session result path
         result_zip_path = get_session_zip_result_path(session_id)

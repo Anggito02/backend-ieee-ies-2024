@@ -5,6 +5,8 @@ import polars as pl
 import pandas as pd
 import zipfile
 
+from flask import send_from_directory
+
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
 DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getting data warning insight to warn the user about some issues that might happen in the future. Below is a user's server logs data\n\n__DATASET__ \nThe first 96 rows of this data will be the current data and the next 48 rows of this data will be the prediction data. Please provide warning insight for the following metrices, __FEATURES__. Your goal is to analyze the interrelation of metrics and highlight any concerning patterns or anomalies. Please give the answer in a list format. Please do not ask questions and just do the analysis of the data."
@@ -51,15 +53,7 @@ class InitSessionHelper:
             if not os.path.exists(os.path.join(result_dir_path, 'zipped')):
                 os.makedirs(os.path.join(result_dir_path, 'zipped'))
 
-            fig_dir_path = os.path.join(result_dir_path, 'fig')
             zip_dir_path = os.path.join(result_dir_path, 'zipped')
-
-            # Zip images
-            with zipfile.ZipFile(os.path.join(zip_dir_path, 'fig.zip'), 'w') as zip:
-                for root, dirs, files in os.walk(result_dir_path):
-                    for dir in dirs:
-                        if dir != 'zipped':
-                            zip.write(os.path.join(root, dir), os.path.relpath(os.path.join(root, dir), result_dir_path))
 
             # Zip documents
             with zipfile.ZipFile(os.path.join(zip_dir_path, 'doc.zip'), 'w') as zip:
@@ -174,3 +168,16 @@ def allowed_files(filename):
 
 def get_session_zip_result_path(session_id):
     return os.path.join(os.getcwd(), 'resources', 'public', session_id, 'results', 'zipped')
+
+def get_session_fig_result_path(session_id):
+    return os.path.join(os.getcwd(), 'resources', 'public', session_id, 'results', 'fig')
+
+def get_session_result_path(session_id):
+    return os.path.join(os.getcwd(), 'resources', 'public', session_id, 'results')
+
+def get_all_fig_objects(fig_result_path):
+    imgs = []
+
+    for img in os.listdir(fig_result_path):
+        imgs.append(send_from_directory(fig_result_path, img, as_attachment=False, mimetype='image/png'))
+    return imgs

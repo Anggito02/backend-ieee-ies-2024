@@ -91,11 +91,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     gt = input[0, :, i]
                     pd = np.concatenate((input[0, :, i], outputs[0, :, i]), axis=0)
 
-                    feat_path = os.path.join(self.args.result_data_path, 'fig', f'feat_{i}')
+                    feat_path = os.path.join(self.args.result_data_path, 'fig')
                     if not os.path.exists(feat_path):
                         os.makedirs(feat_path)
 
-                    visual(gt, pd, date_pred, feats[i], os.path.join(feat_path, 'preds.png'))
+                    visual(gt, pd, date_pred, feats[i], os.path.join(feat_path, f'preds_{i}.png'))
 
             preds = np.concatenate((input, outputs), axis=1)
             preds = preds.squeeze(0)
