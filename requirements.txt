@@ -11,3 +11,4 @@ numpy
 matplotlib
 torch==2.0.0
 reformer-pytorch==1.4.4
+flask-cors
