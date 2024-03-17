@@ -1,9 +1,13 @@
 import os
+import io
 import uuid
 import datetime
 import polars as pl
 import pandas as pd
 import zipfile
+
+from PIL import Image
+from base64 import encodebytes
 
 from flask import send_from_directory
 
@@ -179,5 +183,10 @@ def get_all_fig_objects(fig_result_path):
     imgs = []
 
     for img in os.listdir(fig_result_path):
-        imgs.append(send_from_directory(fig_result_path, img, as_attachment=False, mimetype='image/png'))
+        pil_img = Image.open(os.path.join(fig_result_path, img), 'r')
+        buffered = io.BytesIO()
+        pil_img.save(buffered, format="PNG")
+        img_str = encodebytes(buffered.getvalue()).decode("utf-8")
+        imgs.append(img_str)
+    
     return imgs
