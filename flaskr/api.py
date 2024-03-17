@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 
 from flaskr.Controllers.SessionController import SessionController
-from flaskr.tools.enums import ExceptionEnum
 
 bp = Blueprint('api_bp', __name__)
 sessionController = SessionController()
