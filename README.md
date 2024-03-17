@@ -15,6 +15,12 @@
 ```
 MONGO_URI='mongodb://localhost:27017/db_name'
 ```
+3. Initialize `USE_GPU` environment to use GPU or CPU
+```
+USE_GPU=True || USE_GPU=False
+```
+
+***(Remember to always restart the server if `.env` is changed)***
 
 ### Run Project
 1. Use Python 3.8 above to run this project
