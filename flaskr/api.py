@@ -109,7 +109,12 @@ def download_images():
     """
     try:
         session_id = request.args.get('session_id')
-        return sessionController.download_images(session_id)
+        response = sessionController.download_images(session_id)
+        return jsonify({
+                'success': True,
+                'message': 'Images sent',
+                'data': response
+            })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
