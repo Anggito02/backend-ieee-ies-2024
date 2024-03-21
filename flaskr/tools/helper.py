@@ -13,9 +13,13 @@ from flask import send_from_directory
 
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
-DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getting data warning insight to warn the user about some issues that might happen in the future. Below is a user's server logs data\n\n__DATASET__ \nThe first 96 rows of this data will be the current data and the next 48 rows of this data will be the prediction data. Please provide warning insight for the following metrices, __FEATURES__. Your goal is to analyze the interrelation of metrics and highlight any concerning patterns or anomalies. Please give the answer in a list format. Please do not ask questions and just do the analysis of the data."
+DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getting data warning insight to warn the user about some issues that might happen in the future. Below is a user's server logs data\n\n__DATASET__ \nThe first 48 rows of this data will be the current data and the next 48 rows of this data will be the prediction data. Please provide warning insight for the following metrices, __FEATURES__. Your goal is to analyze the interrelation of metrics and highlight any concerning patterns or anomalies. Please give the answer in a list format. Please do not ask questions and just do the analysis of the data."
 
 DEFAULT_SOLUTION_PROMPT = "Now, your goal is to get the solution from the warning insight that you gave. The solution should be give in a list format briefly and clearly. Below is the warning insight that you gave already gave before\n\n __WARNING_RES__"
+
+DEFAUL_CURRENT_STATE_PROMPT = "Now, your goal is to get the current state insight of the user's data (first 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
+
+DEFAULT_PREDICTED_STATE_PROMPT = "Then, now your goal is to get the predicted state of the user's data (last 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
 
 DEFAULT_INSIGHT_PROMPT = "After this warning and solution you gave to the user,  your goal is to get a general insight of the user's data. The insight should be give in a list format briefly and clearly."
 
@@ -123,9 +127,15 @@ class InitPromptHelper:
         self.prompt_solution = None
         self.prompt_insight = DEFAULT_INSIGHT_PROMPT
 
+        self.prompt_curr_insights = {}
+        self.prompt_pred_insights = {}
+
         self.res_warning = None
         self.res_solution = None
         self.res_insight = None
+
+        self.res_curr_insights = {}
+        self.res_pred_insights = {}
 
     def set_prompt_warning(self, predicted_dataset_path, features_list):
         df = pd.read_csv(predicted_dataset_path)
@@ -135,11 +145,15 @@ class InitPromptHelper:
 
         self.prompt_warning = self.default_warning_prompt.replace("__DATASET__", predicted_csv).replace("__FEATURES__", features)
 
+        return self.prompt_warning
+
     def get_prompt_warning(self):
         return self.prompt_warning
 
     def set_prompt_solution(self, warning_res):
         self.prompt_solution = self.default_solution_prompt.replace("__WARNING_RES__", warning_res)
+
+        return self.prompt_solution
 
     def get_prompt_solution(self):
         return self.prompt_solution
@@ -164,6 +178,24 @@ class InitPromptHelper:
         
     def get_res_insight(self):
         return self.res_insight
+    
+    def set_prompt_curr_state(self, features):
+        for feature in range(len(features)):
+            self.prompt_curr_insights[feature] = DEFAUL_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature])
+
+        return self.prompt_curr_insights
+    
+    def get_prompt_curr_state(self):
+        return self.prompt_curr_insights
+
+    def set_prompt_pred_state(self, features):
+        for feature in range(len(features)):
+            self.prompt_pred_insights[feature] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature])
+
+        return self.prompt_pred_insights
+    
+    def get_prompt_pred_state(self):
+        return self.prompt_pred_insights
 
 
 def allowed_files(filename):

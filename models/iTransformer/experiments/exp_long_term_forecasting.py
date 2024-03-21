@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import os
@@ -97,10 +96,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                     visual(gt, pd, date_pred, feats[i], os.path.join(feat_path, f'preds_{i}.png'))
 
-            preds = np.concatenate((input, outputs), axis=1)
+            preds = np.concatenate((input[:, -self.args.pred_len:, :], outputs), axis=1)
             preds = preds.squeeze(0)
             df_preds = pds.DataFrame(preds, columns=feats)
 
+            date_pred = date_pred[-self.args.pred_len*2:]
             date_pred = pds.to_datetime(date_pred)
             df_preds.insert(0, 'date', date_pred)
 

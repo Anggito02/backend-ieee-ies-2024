@@ -52,17 +52,50 @@ class SessionController:
             # Zip results
             init_session_helper.zip_session_files(dataset_info_helper.result_path)
 
+            # Classification
+            ## Run prediction classification
+            ## Get warning dan danger features
+            ## temp
+            ## classification_result = Classification()
+            classification_result = {'amount': 0, 'index_features': [], 'label': ""}
+            
+            classification_feat_des = []
+            for i in range(len(classification_result['index_features'])):
+                classification_feat_des.append(dataset_info_helper.features_des[classification_result['index_features'][i]])
+
             # Create init prompt helper
             init_prompt_helper = InitPromptHelper()
             
-            init_prompt_helper.set_prompt_warning(dataset_pred_helper.preds_res_csv_path, dataset_info_helper.features_des)
-
             # Run Mistral for warning
+            warning_prompt = init_prompt_helper.set_prompt_warning(dataset_pred_helper.preds_res_csv_path, classification_feat_des)
+            # warning_result = Mistral(warning_prompt)
+            warning_result = ""
+            init_prompt_helper.set_res_warning(warning_result)
 
             # Run Mistral for solution
-            init_prompt_helper.set_prompt_solution("__WARNING_RES__")
+            solution_prompt = init_prompt_helper.set_prompt_solution(warning_result)
+            # solution_result = Mistral(solution_prompt)
+            solution_result = ""
+            init_prompt_helper.set_res_solution(solution_result)
 
             # Run Mistral for insight
+            insight_prompt = init_prompt_helper.get_prompt_insight()
+            # insight_result = Mistral(insight_prompt)
+            insight_result = ""
+            init_prompt_helper.set_res_insight(insight_result)
+
+            # Run Mistral for current and predicted state per feature
+            for i in range(len(classification_feat_des)):
+                curr_state_prompt = init_prompt_helper.set_prompt_curr_state(classification_feat_des)
+                # curr_state_result = Mistral(curr_state_prompt)
+                curr_state_result = ""
+                init_prompt_helper.set_prompt_curr_state(curr_state_result)
+
+                pred_state_prompt = init_prompt_helper.set_prompt_pred_state(classification_feat_des)
+                # pred_state_result = Mistral(pred_state_prompt)
+                pred_state_result = ""
+                init_prompt_helper.set_prompt_pred_state(pred_state_result)
+
 
             # Return result
             result = {
@@ -77,6 +110,11 @@ class SessionController:
                     'warning': init_prompt_helper.res_warning,
                     'solution': init_prompt_helper.res_solution,
                     'insight': init_prompt_helper.res_insight
+                },
+                'classification_result': {
+                    'classified_amount': classification_result['amount'],
+                    'classified_features': classification_feat_des,
+                    'classified_label': classification_result['label']
                 },
                 'dataset_info': {
                     'dataset_name': dataset_info_helper.dataset_name,
