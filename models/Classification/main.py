@@ -13,8 +13,7 @@ class ModelRunner:
             data.set_index('date', inplace=True)
 
             PreprocessClass = Preprocess(data)
-            data, index_features = PreprocessClass.preprocess()
-            amount = len(index_features)
+            data, index_features, amount = PreprocessClass.preprocess()
 
             PredictClass = Predict(data)
             label = PredictClass.predict()

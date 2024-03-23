@@ -8,6 +8,7 @@ class Preprocess():
     def __init__(self, dataset):
         self.dataset = dataset
         self.index_features = []
+        self.problem_count = 0
         self.threshold_dict = {
                 'Temperature (°C)': [20, 33],
                 'Humidity (%)': [50, 60],
@@ -39,9 +40,12 @@ class Preprocess():
             temp[self.dataset.columns[i]] = talib.abstract.EMA(self.dataset.iloc[:, i], timeperiod = 48)
         self.dataset = temp.iloc[-1]
 
+        self.problem_count = 0
         for i in range(len(self.dataset) - 1):
             if self.dataset.iloc[i] < self.threshold_dict[self.dataset.index[i]][0] or self.dataset.iloc[i] > self.threshold_dict[self.dataset.index[i]][1]:
                 self.index_features.append(i)
+                self.problem_count += 1
+        self.dataset['problem_count'] = self.problem_count
 
         return True     
 
@@ -58,7 +62,7 @@ class Preprocess():
             self._get_ema()
             self._scaler()
             
-            return self.dataset, self.index_features
+            return self.dataset, self.index_features, self.problem_count
         
         except:
             raise Exception
