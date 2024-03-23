@@ -17,7 +17,7 @@ DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getti
 
 DEFAULT_SOLUTION_PROMPT = "Now, your goal is to get the solution from the warning insight that you gave. The solution should be give in a list format briefly and clearly. Below is the warning insight that you gave already gave before\n\n __WARNING_RES__"
 
-DEFAUL_CURRENT_STATE_PROMPT = "Now, your goal is to get the current state insight of the user's data (first 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
+DEFAULT_CURRENT_STATE_PROMPT = "Now, your goal is to get the current state insight of the user's data (first 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
 
 DEFAULT_PREDICTED_STATE_PROMPT = "Then, now your goal is to get the predicted state of the user's data (last 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
 
@@ -127,15 +127,15 @@ class InitPromptHelper:
         self.prompt_solution = None
         self.prompt_insight = DEFAULT_INSIGHT_PROMPT
 
-        self.prompt_curr_insights = {}
-        self.prompt_pred_insights = {}
+        self.prompt_curr_states = {}
+        self.prompt_pred_states = {}
 
         self.res_warning = None
         self.res_solution = None
         self.res_insight = None
 
-        self.res_curr_insights = {}
-        self.res_pred_insights = {}
+        self.res_curr_states = {}
+        self.res_pred_states = {}
 
     def set_prompt_warning(self, predicted_dataset_path, features_list):
         df = pd.read_csv(predicted_dataset_path)
@@ -179,24 +179,50 @@ class InitPromptHelper:
     def get_res_insight(self):
         return self.res_insight
     
-    def set_prompt_curr_state(self, features):
+    def set_prompt_curr_states(self, features):
         for feature in range(len(features)):
-            self.prompt_curr_insights[feature] = DEFAUL_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature])
+            self.prompt_curr_states[feature] = DEFAULT_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature])
 
-        return self.prompt_curr_insights
+        return self.prompt_curr_states
     
-    def get_prompt_curr_state(self):
-        return self.prompt_curr_insights
+    def get_prompt_curr_states(self):
+        return self.prompt_curr_states
 
-    def set_prompt_pred_state(self, features):
+    def set_prompt_pred_states(self, features):
         for feature in range(len(features)):
-            self.prompt_pred_insights[feature] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature])
+            self.prompt_pred_states[feature] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature])
 
-        return self.prompt_pred_insights
+        return self.prompt_pred_states
     
-    def get_prompt_pred_state(self):
-        return self.prompt_pred_insights
+    def get_prompt_pred_states(self):
+        return self.prompt_pred_states
+    
+    def set_res_curr_states(self, curr_states):
+        self.res_curr_states = curr_states
 
+    def get_res_curr_states(self):
+        return self.res_curr_states
+    
+    def set_res_pred_states(self, pred_states):
+        self.res_pred_states = pred_states
+
+    def get_res_pred_states(self):
+        return self.res_pred_states
+
+class ClassificationHelper:
+    def __init__(self, classification_result) -> None:
+        self.classification_result = classification_result
+        self.classification_amount = self.classification_result['amount']
+        self.classification_index_features = self.classification_result['index_features']
+        self.classification_label = self.classification_result['label']
+        self.classification_feat_des = []
+
+    def set_classification_feat_des(self, dataset_feature_des):
+        for idx in self.classification_index_features:
+            self.classification_feat_des.append(dataset_feature_des[self.classification_result[idx]])
+        
+        return self.classification_feat_des
+    
 
 def allowed_files(filename):
     extension = filename.rsplit('.', 1)[1].lower()
