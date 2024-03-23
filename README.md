@@ -36,9 +36,16 @@ pip install -r requirements.txt
 3. Install PyTorch CUDA for CUDA 11.8
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```   
+```
 
-5. Run the project
+4. Download TA-Lib Wheel
+Download (<b>TA_Lib‑0.4.24‑cp38‑cp38‑win_amd64.whl</b> for 64 bit OR <b>TA_Lib‑0.4.24‑cp38‑cp38‑win32.whl</b> for 32 bit) from <a href=[here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib)>here</a> and save it in the project
+
+5. Install TA-Lib
+```
+pip install TA_Lib‑0.4.24‑cp38‑cp38‑win_amd64.whl
+```
+6. Run the project
 ```
 python run.py
 ```
