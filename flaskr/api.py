@@ -24,8 +24,32 @@ def create_session():
             message: "Session created successfully"
             data: {
                 session_id: chat's session id
-                prompts: list of initial prompts [warning, solution, insight]
-                results: list of initial results [warning, solution, insight]
+                document_path: document server path
+                prompts: {
+                    warning: warning prompt
+                    solution: solution prompt
+                    insight: current state prompt
+                }
+                results: {
+                    warning: warning result
+                    solution: solution result
+                    insight: insight result
+                }
+                classification: {
+                    curr_states: {
+                        prompt_curr_state: dictionary of {feature: prompt for feature current state}
+                        res_curr_state: dictionary of {feature: result for feature current state}
+                    }
+                    pred_states: {
+                        prompt_pred_state: dictionary of {feature: prompt for feature predicted state}
+                        res_pred_state: dictionary of {feature: result for feature predicted state}
+                    }
+                }
+                classification_result: {
+                    classified_amount: classified features amount
+                    classified_features: classified features description
+                    classfied_label: classifier result label
+                }
                 dataset_info: {
                     dataset_name: dataset name
                     dataset_path: dataset server path

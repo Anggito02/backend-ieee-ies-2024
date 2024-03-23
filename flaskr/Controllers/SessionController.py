@@ -1,6 +1,6 @@
 from flask import send_from_directory
 
-from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
+from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, ClassificationHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
 
 from flaskr.tools.enums import ExceptionEnum
 
@@ -59,9 +59,9 @@ class SessionController:
             ## classification_result = Classification()
             classification_result = {'amount': 0, 'index_features': [], 'label': ""}
             
-            classification_feat_des = []
-            for i in range(len(classification_result['index_features'])):
-                classification_feat_des.append(dataset_info_helper.features_des[classification_result['index_features'][i]])
+            classification_helper = ClassificationHelper(classification_result)
+
+            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)            
 
             # Create init prompt helper
             init_prompt_helper = InitPromptHelper()
@@ -85,17 +85,15 @@ class SessionController:
             init_prompt_helper.set_res_insight(insight_result)
 
             # Run Mistral for current and predicted state per feature
-            for i in range(len(classification_feat_des)):
-                curr_state_prompt = init_prompt_helper.set_prompt_curr_state(classification_feat_des)
-                # curr_state_result = Mistral(curr_state_prompt)
-                curr_state_result = ""
-                init_prompt_helper.set_prompt_curr_state(curr_state_result)
+            curr_state_prompts = init_prompt_helper.set_prompt_curr_states(classification_feat_des)
+            # curr_state_results = Mistral(curr_state_prompts)
+            curr_state_results = ""
+            init_prompt_helper.set_res_curr_states(curr_state_results)
 
-                pred_state_prompt = init_prompt_helper.set_prompt_pred_state(classification_feat_des)
-                # pred_state_result = Mistral(pred_state_prompt)
-                pred_state_result = ""
-                init_prompt_helper.set_prompt_pred_state(pred_state_result)
-
+            pred_state_prompts = init_prompt_helper.set_prompt_pred_states(classification_feat_des)
+            # pred_state_results = Mistral(pred_state_prompts)
+            pred_state_results = ""
+            init_prompt_helper.set_res_pred_states(pred_state_results)
 
             # Return result
             result = {
@@ -110,6 +108,16 @@ class SessionController:
                     'warning': init_prompt_helper.res_warning,
                     'solution': init_prompt_helper.res_solution,
                     'insight': init_prompt_helper.res_insight
+                },
+                'classification': {
+                    'curr_states': {
+                        'prompt_curr_states': init_prompt_helper.prompt_curr_states,
+                        'res_curr_states': init_prompt_helper.res_curr_states
+                    },
+                    'pred_states': {
+                        'prompt_pred_states': init_prompt_helper.prompt_pred_states,
+                        'res_pred_states': init_prompt_helper.res_pred_states
+                    }
                 },
                 'classification_result': {
                     'classified_amount': classification_result['amount'],
