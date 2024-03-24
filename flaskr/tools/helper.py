@@ -5,6 +5,7 @@ import datetime
 import polars as pl
 import pandas as pd
 import zipfile
+import json
 
 from PIL import Image
 from base64 import encodebytes
@@ -126,6 +127,8 @@ class InitPromptHelper:
         self.res_curr_states = {}
         self.res_pred_states = {}
 
+        self.chat_state_path = ""
+
     def set_prompt_summary(self, predicted_dataset_path, features_list):
         df = pd.read_csv(predicted_dataset_path)
         predicted_csv = df.to_csv(index=False, header=True, sep=',', line_terminator='\n')
@@ -183,6 +186,15 @@ class InitPromptHelper:
 
     def get_res_pred_states(self):
         return self.res_pred_states
+    
+    def save_chat_state_session(self, session_path, chat_state):
+        chat_state_json = json.dumps(chat_state)
+
+        with open(os.path.join(session_path, 'chat_state.json'), 'w') as f:
+            f.write(chat_state_json)
+
+    def get_chat_state_path(self):
+        return self.chat_state_path
 
 class ClassificationHelper:
     def __init__(self, classification_result) -> None:
@@ -198,6 +210,25 @@ class ClassificationHelper:
         
         return self.classification_feat_des
     
+class ChatContHelper:
+    def __init__(self, session_id) -> None:
+        self.chat_state_path = os.path.join(os.getcwd(), 'resources', 'public', session_id, 'chat_state.json')
+        self.created_at = datetime.datetime.now()
+
+    def get_chat_state_path(self):
+        return self.chat_state_path
+    
+    def save_chat_state_session(self, chat_state):
+        chat_state_json = json.dumps(chat_state)
+
+        with open(self.chat_state_path, 'w') as f:
+            f.write(chat_state_json)
+
+    def load_chat_state_session(self):
+        with open(self.chat_state_path, 'r') as f:
+            chat_state_json = f.read()
+
+        return json.loads(chat_state_json)
 
 def allowed_files(filename):
     extension = filename.rsplit('.', 1)[1].lower()

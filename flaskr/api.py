@@ -92,12 +92,12 @@ def create_session():
         
 
 # Promnpt API
-@bp.route('/api/session/prompt/create/', methods=['POST'])
+@bp.route('/api/session/prompt/create', methods=['POST'])
 def create_cont_prompt():
     """API to upload new prompt to the relevant session
 
     Args:
-        session_id (str): session id
+        request: containing session_id, prompt
 
     Raises:
         Exception: Any error occured in the backend
@@ -109,14 +109,16 @@ def create_cont_prompt():
             message: "Prompt created successfully"
             data: {
                 prompt: prompt
-                res: result
+                result: {
+                    content: content of result
+                    role: role of result (assistant)
+                }
                 created_at: creation time
             }
         }
     """
     try:
-        session_id = request.args.get('session_id') 
-        response = sessionController.create_cont_prompt(session_id, request)
+        response = sessionController.create_cont_prompt(request)
 
         return jsonify({
             'success': True,

@@ -2,7 +2,7 @@ import time
 import math
 from flask import send_from_directory
 
-from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, ClassificationHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
+from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, ClassificationHelper, ChatContHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
 
 from flaskr.tools.enums import ExceptionEnum
 
@@ -91,8 +91,8 @@ class SessionController:
 
             mistral_prompts_in.append(summary_prompt)
             for feature in range(len(classification_feat_des)):
-                mistral_prompts_in.append(curr_state_prompts[feature])
-                mistral_prompts_in.append(pred_state_prompts[feature])
+                mistral_prompts_in.append(curr_state_prompts[classification_feat_des[feature]])
+                mistral_prompts_in.append(pred_state_prompts[classification_feat_des[feature]])
             print(f"Prompts set. Time spent {time.time() - time_start_set_prompt}")
             
             print("Running Mistral...")
@@ -108,6 +108,8 @@ class SessionController:
             print(mistral_chat_session)
             print()
             print()
+
+            init_prompt_helper.save_chat_state_session(init_session_helper.session_path, mistral_chat_session)
 
             print(f"Mistral done. Time spent {time.time() - time_start_mistral}")
 
@@ -165,6 +167,9 @@ class SessionController:
                     'preds_res_npy_path': dataset_pred_helper.preds_res_npy_path,
                     'preds_fig_dir_path': dataset_pred_helper.preds_fig_dir_path
                 },
+                'cont_chat': {
+                    'chat_session_path': init_prompt_helper.get_chat_state_path()
+                },
                 'created_at': init_session_helper.created_at
             }
 
@@ -176,18 +181,29 @@ class SessionController:
             else:
                 raise Exception
     
-    def create_cont_prompt(self, session_id, request):
+    def create_cont_prompt(self, request):
         try:
+            session_id = request.json['session_id']
             prompt = request.json['prompt']
-            # Get Mistral Session Object
-            # mistral = Mistral(session_id)
+            
+            # Initialize Helper and Runner
+            chat_cont_helper = ChatContHelper(session_id)
+            mistralRunner = MistralRunner()
 
-            # Run Mistral
-            # result = mistral.run(r)
-            result = "This is result from API"
+            chat_state = chat_cont_helper.load_chat_state_session()
+            chat_state_updated, message_out = mistralRunner.run_cont(chat_state, prompt)
+
+            chat_cont_helper.save_chat_state_session(chat_state_updated)
+
+            result = {
+                'prompt': prompt,
+                'result': message_out,
+                'created_at': chat_cont_helper.created_at
+            }
+
             return result
-        except:
-            pass
+        except Exception as e:
+            raise e
     
     def download_images(self, session_id):
         # Get fig result path
