@@ -130,6 +130,9 @@ class InitPromptHelper:
         df = pd.read_csv(predicted_dataset_path)
         predicted_csv = df.to_csv(index=False, header=True, sep=',', line_terminator='\n')
 
+        for i in range(len(features_list)):
+            features_list[i] = f"'{features_list[i]}'"
+
         features = ", ".join(features_list)
 
         self.prompt_summary = self.prompt_summary.replace("__DATASET__", predicted_csv).replace("__FEATURES__", features)
@@ -146,8 +149,8 @@ class InitPromptHelper:
         return self.result_summary
     
     def set_prompt_curr_states(self, features):
-        for feature in range(len(features)):
-            self.prompt_curr_states[feature] = DEFAULT_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature])
+        for feature_idx in range(len(features)):
+            self.prompt_curr_states[features[feature_idx]] = DEFAULT_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature_idx])
 
         return self.prompt_curr_states
     
@@ -155,8 +158,8 @@ class InitPromptHelper:
         return self.prompt_curr_states
 
     def set_prompt_pred_states(self, features):
-        for feature in range(len(features)):
-            self.prompt_pred_states[feature] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature])
+        for feature_idx in range(len(features)):
+            self.prompt_pred_states[features[feature_idx]] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature_idx])
 
         return self.prompt_pred_states
     

@@ -27,23 +27,30 @@ def create_session():
                 session_id: chat's session id
                 document_path: document server path
                 prompts: {
-                    warning: warning prompt
-                    solution: solution prompt
-                    insight: current state prompt
-                }
-                results: {
-                    warning: warning result
-                    solution: solution result
-                    insight: insight result
-                }
-                classification: {
+                    summary: summary prompt
                     curr_states: {
-                        prompt_curr_state: dictionary of {feature: prompt for feature current state}
-                        res_curr_state: dictionary of {feature: result for feature current state}
+                        {name of feature}: curr prompt, ...
                     }
                     pred_states: {
-                        prompt_pred_state: dictionary of {feature: prompt for feature predicted state}
-                        res_pred_state: dictionary of {feature: result for feature predicted state}
+                        {name of feature}: pred prompt
+                    }
+                }
+                results: {
+                    summary: {
+                        content: content of summary result
+                        role: role of result summary (assistant)
+                    }
+                    curr_states: {
+                        {name of feature}: {
+                            content: content of curr state result
+                            role: role of result curr state (assistant)
+                        }
+                    }
+                    pred_states: {
+                        {name of feature}: {
+                            content: content of pred state result
+                            role: role of result pred state (assistant)
+                        }
                     }
                 }
                 classification_result: {
