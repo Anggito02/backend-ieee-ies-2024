@@ -8,6 +8,10 @@ from flaskr.tools.enums import ExceptionEnum
 from models.iTransformer.main import ModelRunner as iTransformerRunner
 from models.Mistral.main import ModelRunner as MistralRunner
 
+from models.Classification.main import ModelRunner as ClassificationRunner
+
+import os
+
 class SessionController:
     def __init__(self):
         pass
@@ -54,16 +58,15 @@ class SessionController:
             # Zip results
             init_session_helper.zip_session_files(dataset_info_helper.result_path)
 
-            # Classification
-            ## Run prediction classification
-            ## Get warning dan danger features
-            ## temp
-            ## classification_result = Classification()
-            classification_result = {'amount': 2, 'index_features': [0, 1], 'label': "warning"}
-            
+            # # Classification
+            Classification_runner = ClassificationRunner(
+                dataset_pred_helper.preds_res_csv_path
+            )
+
+            classification_result = Classification_runner.run()
             classification_helper = ClassificationHelper(classification_result)
 
-            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)            
+            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)          
 
             # Create init prompt helper
             init_prompt_helper = InitPromptHelper()            

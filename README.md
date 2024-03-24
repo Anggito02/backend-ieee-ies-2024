@@ -39,7 +39,11 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ollama run mistral
 ```
 
-5. Run the project
+5. Install TA-Lib
+```
+pip install TA_Lib‑0.4.24‑cp38‑cp38‑win_amd64.whl
+```
+6. Run the project
 ```
 python run.py
 ```

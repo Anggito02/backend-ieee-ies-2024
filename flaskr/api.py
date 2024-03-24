@@ -1,3 +1,4 @@
+import traceback
 from flask import Blueprint, jsonify, request
 
 from flaskr.Controllers.SessionController import SessionController
@@ -75,6 +76,7 @@ def create_session():
             'data': response
         }), 200
     except Exception as e:
+        traceback.print_exc()
         return jsonify({
                 'success': False,
                 'message': 'An unexpected error occurred',
@@ -115,6 +117,7 @@ def create_cont_prompt():
             'data': response
         })
     except Exception as e:
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     
 # Download prediction images API
@@ -141,6 +144,7 @@ def download_images():
             })
         
     except Exception as e:
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     
 # Download prediction docs API
@@ -162,5 +166,6 @@ def download_docs():
         return sessionController.download_docs(session_id)
         
     except Exception as e:
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     

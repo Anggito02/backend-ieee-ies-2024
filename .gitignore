@@ -11,4 +11,3 @@ venv/
 instance
 resources/public
 .env
-*.gguf

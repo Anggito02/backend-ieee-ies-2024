@@ -191,7 +191,7 @@ class ClassificationHelper:
 
     def set_classification_feat_des(self, dataset_feature_des):
         for idx in self.classification_index_features:
-            self.classification_feat_des.append(dataset_feature_des[self.classification_result[idx]])
+            self.classification_feat_des.append(dataset_feature_des[idx])
         
         return self.classification_feat_des
     
