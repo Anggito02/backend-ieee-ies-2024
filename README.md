@@ -19,10 +19,6 @@
 ```
 MONGO_URI='mongodb://localhost:27017/db_name'
 ```
-3. Initialize `USE_GPU` environment to use **GPU** or **CPU**
-```
-USE_GPU=True || USE_GPU=False
-```
 
 ***(Remember to always restart the server if `.env` is changed)***
 
@@ -36,9 +32,18 @@ pip install -r requirements.txt
 3. Install PyTorch CUDA for CUDA 11.8
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```   
+```
 
-5. Run the project
+4. Install mistral model with `ollama`
+```
+ollama run mistral
+```
+
+5. Install TA-Lib
+```
+pip install TA_Lib‑0.4.24‑cp38‑cp38‑win_amd64.whl
+```
+6. Run the project
 ```
 python run.py
 ```

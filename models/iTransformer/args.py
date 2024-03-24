@@ -1,8 +1,3 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 class Args:
     def __init__(self, dataset_dir_path,
                  result_data_path, freq, features):
@@ -38,7 +33,7 @@ class Args:
         self.num_workers = 10
         self.batch_size = 32
 
-        self.use_gpu = True if os.getenv('USE_GPU') == 'True' else False
+        self.use_gpu = True
         self.use_multi_gpu = False
         self.gpu = 0
         self.devices = 0

@@ -13,15 +13,11 @@ from flask import send_from_directory
 
 ALLOWED_EXTENSIONS = ['csv', 'xlsx']
 
-DEFAULT_WARNING_PROMPT = "You are a senior data analyst who specializes in getting data warning insight to warn the user about some issues that might happen in the future. Below is a user's server logs data\n\n__DATASET__ \nThe first 48 rows of this data will be the current data and the next 48 rows of this data will be the prediction data. Please provide warning insight for the following metrices, __FEATURES__. Your goal is to analyze the interrelation of metrics and highlight any concerning patterns or anomalies. Please give the answer in a list format. Please do not ask questions and just do the analysis of the data."
-
-DEFAULT_SOLUTION_PROMPT = "Now, your goal is to get the solution from the warning insight that you gave. The solution should be give in a list format briefly and clearly. Below is the warning insight that you gave already gave before\n\n __WARNING_RES__"
+DEFAULT_INIT_PROMPT_SUMMARY = "You are a senior data analyst who specializes in getting data warning and solution insight to warn the user about some issues that might happen in the future. Below is a user's server logs data\n\n__DATASET__ \nThe first 48 rows of this data will be the current data and the next 48 rows of this data will be the prediction data. Please provide warning and solution insight for the following metrices, __FEATURES__. Your goal is to analyze the interrelation of metrics and highlight any concerning patterns or anomalies and the solution to the warning. Please give the answer in a list format. Please do not ask questions and just do the analysis of the data."
 
 DEFAULT_CURRENT_STATE_PROMPT = "Now, your goal is to get the current state insight of the user's data (first 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
 
 DEFAULT_PREDICTED_STATE_PROMPT = "Then, now your goal is to get the predicted state of the user's data (last 48 rows of the data) for __FEATURE__ metric. Insights should be given in one brief paragraph."
-
-DEFAULT_INSIGHT_PROMPT = "After this warning and solution you gave to the user,  your goal is to get a general insight of the user's data. The insight should be give in a list format briefly and clearly."
 
 class InitSessionHelper:
     def __init__(self):
@@ -119,69 +115,42 @@ class DatasetPredHelper:
         self.preds_fig_dir_path = os.path.join(self.preds_dir_path, 'fig')
 
 class InitPromptHelper:
-    def __init__(self):
-        self.default_warning_prompt = DEFAULT_WARNING_PROMPT
-        self.default_solution_prompt = DEFAULT_SOLUTION_PROMPT
-    
-        self.prompt_warning = None
-        self.prompt_solution = None
-        self.prompt_insight = DEFAULT_INSIGHT_PROMPT
+    def __init__(self):    
+        self.prompt_summary = DEFAULT_INIT_PROMPT_SUMMARY
 
         self.prompt_curr_states = {}
         self.prompt_pred_states = {}
 
-        self.res_warning = None
-        self.res_solution = None
-        self.res_insight = None
+        self.result_summary = ""
 
         self.res_curr_states = {}
         self.res_pred_states = {}
 
-    def set_prompt_warning(self, predicted_dataset_path, features_list):
+    def set_prompt_summary(self, predicted_dataset_path, features_list):
         df = pd.read_csv(predicted_dataset_path)
         predicted_csv = df.to_csv(index=False, header=True, sep=',', line_terminator='\n')
 
+        for i in range(len(features_list)):
+            features_list[i] = f"'{features_list[i]}'"
+
         features = ", ".join(features_list)
 
-        self.prompt_warning = self.default_warning_prompt.replace("__DATASET__", predicted_csv).replace("__FEATURES__", features)
+        self.prompt_summary = self.prompt_summary.replace("__DATASET__", predicted_csv).replace("__FEATURES__", features)
 
-        return self.prompt_warning
+        return self.prompt_summary
 
-    def get_prompt_warning(self):
-        return self.prompt_warning
+    def get_prompt_summary(self):
+        return self.prompt_summary
 
-    def set_prompt_solution(self, warning_res):
-        self.prompt_solution = self.default_solution_prompt.replace("__WARNING_RES__", warning_res)
-
-        return self.prompt_solution
-
-    def get_prompt_solution(self):
-        return self.prompt_solution
-    
-    def get_prompt_insight(self):
-        return self.prompt_insight
-    
-    def set_res_warning(self, warning_res):
-        self.res_warning = warning_res
-
-    def get_res_warning(self):
-        return self.res_warning
-    
-    def set_res_solution(self, solution_res):
-        self.res_solution = solution_res
-
-    def get_res_solution(self):
-        return self.res_solution
-    
-    def set_res_insight(self, insight_res):
-        self.res_insight = insight_res
+    def set_res_summary(self, summary_res):
+        self.result_summary = summary_res
         
-    def get_res_insight(self):
-        return self.res_insight
+    def get_res_summary(self):
+        return self.result_summary
     
     def set_prompt_curr_states(self, features):
-        for feature in range(len(features)):
-            self.prompt_curr_states[feature] = DEFAULT_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature])
+        for feature_idx in range(len(features)):
+            self.prompt_curr_states[features[feature_idx]] = DEFAULT_CURRENT_STATE_PROMPT.replace("__FEATURE__", features[feature_idx])
 
         return self.prompt_curr_states
     
@@ -189,8 +158,8 @@ class InitPromptHelper:
         return self.prompt_curr_states
 
     def set_prompt_pred_states(self, features):
-        for feature in range(len(features)):
-            self.prompt_pred_states[feature] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature])
+        for feature_idx in range(len(features)):
+            self.prompt_pred_states[features[feature_idx]] = DEFAULT_PREDICTED_STATE_PROMPT.replace("__FEATURE__", features[feature_idx])
 
         return self.prompt_pred_states
     
@@ -198,13 +167,19 @@ class InitPromptHelper:
         return self.prompt_pred_states
     
     def set_res_curr_states(self, curr_states):
-        self.res_curr_states = curr_states
+        for feature_result in curr_states:
+            self.res_curr_states[feature_result] = curr_states[feature_result]
+
+        return self.res_curr_states
 
     def get_res_curr_states(self):
         return self.res_curr_states
     
     def set_res_pred_states(self, pred_states):
-        self.res_pred_states = pred_states
+        for feature_result in pred_states:
+            self.res_pred_states[feature_result] = pred_states[feature_result]
+
+        return self.res_pred_states
 
     def get_res_pred_states(self):
         return self.res_pred_states
@@ -219,7 +194,7 @@ class ClassificationHelper:
 
     def set_classification_feat_des(self, dataset_feature_des):
         for idx in self.classification_index_features:
-            self.classification_feat_des.append(dataset_feature_des[self.classification_result[idx]])
+            self.classification_feat_des.append(dataset_feature_des[idx])
         
         return self.classification_feat_des
     

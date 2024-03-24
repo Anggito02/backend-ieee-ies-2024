@@ -1,3 +1,5 @@
+import time
+import math
 from flask import send_from_directory
 
 from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPredHelper, InitPromptHelper, ClassificationHelper, allowed_files, get_session_fig_result_path, get_session_zip_result_path, get_all_fig_objects
@@ -5,6 +7,11 @@ from flaskr.tools.helper import InitSessionHelper, DatasetInfoHelper, DatasetPre
 from flaskr.tools.enums import ExceptionEnum
 
 from models.iTransformer.main import ModelRunner as iTransformerRunner
+from models.Mistral.main import ModelRunner as MistralRunner
+
+from models.Classification.main import ModelRunner as ClassificationRunner
+
+import os
 
 class SessionController:
     def __init__(self):
@@ -44,7 +51,10 @@ class SessionController:
             )
 
             # Run iTransformer
+            print("Predicting with iTransformer...")
+            time_start_iTransformer = time.time()
             iTransformer_runner.run()
+            print(f"Predicting done. Time spent {time.time() - time_start_iTransformer}s")
 
             # Create dataset pred helper
             dataset_pred_helper = DatasetPredHelper(init_session_helper.session_path)
@@ -53,71 +63,90 @@ class SessionController:
             init_session_helper.zip_session_files(dataset_info_helper.result_path)
 
             # Classification
-            ## Run prediction classification
-            ## Get warning dan danger features
-            ## temp
-            ## classification_result = Classification()
-            classification_result = {'amount': 0, 'index_features': [], 'label': ""}
-            
+            Classification_runner = ClassificationRunner(
+                dataset_pred_helper.preds_res_csv_path
+            )
+
+            print("Classifying the results...")
+            time_start_classifying = time.time()
+            classification_result = Classification_runner.run()
+            print(f"Classifying results done. Time spent {time.time() - time_start_classifying}")
             classification_helper = ClassificationHelper(classification_result)
 
-            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)            
+            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)          
 
             # Create init prompt helper
-            init_prompt_helper = InitPromptHelper()
-            
-            # Run Mistral for warning
-            warning_prompt = init_prompt_helper.set_prompt_warning(dataset_pred_helper.preds_res_csv_path, classification_feat_des)
-            # warning_result = Mistral(warning_prompt)
-            warning_result = ""
-            init_prompt_helper.set_res_warning(warning_result)
+            print("Setting up the prompts...")
+            time_start_set_prompt = time.time()
+            init_prompt_helper = InitPromptHelper()         
+            mistralRunner = MistralRunner()
 
-            # Run Mistral for solution
-            solution_prompt = init_prompt_helper.set_prompt_solution(warning_result)
-            # solution_result = Mistral(solution_prompt)
-            solution_result = ""
-            init_prompt_helper.set_res_solution(solution_result)
+            # Set mistral prompts
+            summary_prompt = init_prompt_helper.set_prompt_summary(dataset_pred_helper.preds_res_csv_path, classification_feat_des)
 
-            # Run Mistral for insight
-            insight_prompt = init_prompt_helper.get_prompt_insight()
-            # insight_result = Mistral(insight_prompt)
-            insight_result = ""
-            init_prompt_helper.set_res_insight(insight_result)
-
-            # Run Mistral for current and predicted state per feature
             curr_state_prompts = init_prompt_helper.set_prompt_curr_states(classification_feat_des)
-            # curr_state_results = Mistral(curr_state_prompts)
-            curr_state_results = ""
-            init_prompt_helper.set_res_curr_states(curr_state_results)
-
             pred_state_prompts = init_prompt_helper.set_prompt_pred_states(classification_feat_des)
-            # pred_state_results = Mistral(pred_state_prompts)
-            pred_state_results = ""
-            init_prompt_helper.set_res_pred_states(pred_state_results)
+
+            mistral_prompts_in = []
+
+            mistral_prompts_in.append(summary_prompt)
+            for feature in range(len(classification_feat_des)):
+                mistral_prompts_in.append(curr_state_prompts[feature])
+                mistral_prompts_in.append(pred_state_prompts[feature])
+            print(f"Prompts set. Time spent {time.time() - time_start_set_prompt}")
+            
+            print("Running Mistral...")
+            time_start_mistral = time.time()
+            mistral_results, mistral_chat_session = mistralRunner.run(mistral_prompts_in)
+
+            print(f"=== Mistral Results ===")
+            print(mistral_results)
+            print()
+            print()
+            
+            print(f"=== Mistral Chat session ===")
+            print(mistral_chat_session)
+            print()
+            print()
+
+            print(f"Mistral done. Time spent {time.time() - time_start_mistral}")
+
+            # Mistral results
+            summary_result = mistral_results[0]
+            init_prompt_helper.set_res_summary(summary_result)
+
+            curr_state_results_temp = []
+            pred_state_results_temp = []
+
+            for feature_idx in range(math.ceil(len(classification_feat_des)/2)):
+                curr_state_results_temp.append(mistral_results[feature_idx + 1])
+                pred_state_results_temp.append(mistral_results[feature_idx + 1 + math.ceil(len(classification_feat_des)/2)])
+
+            curr_state_results_dict = {}
+            pred_state_results_dict = {}
+
+            i = 0
+            for feature in classification_feat_des:
+                curr_state_results_dict[feature] = curr_state_results_temp[i]
+                pred_state_results_dict[feature] = pred_state_results_temp[i]
+                i += 1
+
+            init_prompt_helper.set_res_curr_states(curr_state_results_dict)
+            init_prompt_helper.set_res_pred_states(pred_state_results_dict)            
 
             # Return result
             result = {
                 'session_id': init_session_helper.session_id,
                 'document_path': dataset_info_helper.dataset_path,
                 'prompts': {
-                    'warning': init_prompt_helper.prompt_warning,
-                    'solution': init_prompt_helper.prompt_solution,
-                    'insight': init_prompt_helper.prompt_insight
+                    'sumarry': init_prompt_helper.get_prompt_summary(),
+                    'curr_states': init_prompt_helper.get_prompt_curr_states(),
+                    'pred_states': init_prompt_helper.get_prompt_pred_states()
                 },
                 'results': {
-                    'warning': init_prompt_helper.res_warning,
-                    'solution': init_prompt_helper.res_solution,
-                    'insight': init_prompt_helper.res_insight
-                },
-                'classification': {
-                    'curr_states': {
-                        'prompt_curr_states': init_prompt_helper.prompt_curr_states,
-                        'res_curr_states': init_prompt_helper.res_curr_states
-                    },
-                    'pred_states': {
-                        'prompt_pred_states': init_prompt_helper.prompt_pred_states,
-                        'res_pred_states': init_prompt_helper.res_pred_states
-                    }
+                    'summary': init_prompt_helper.get_res_summary(),
+                    'curr_states': init_prompt_helper.get_res_curr_states(),
+                    'pred_states': init_prompt_helper.get_res_pred_states()
                 },
                 'classification_result': {
                     'classified_amount': classification_result['amount'],
