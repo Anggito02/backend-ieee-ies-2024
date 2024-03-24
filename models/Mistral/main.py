@@ -42,7 +42,33 @@ class ModelRunner:
                 if content_out:
                     messages_out.append(message_out)
             
+            print()
             print(f"Time spent for prompt {i}: {time.time() - time_per_prompt_start}")
             i += 1
 
         return messages_out, messages
+    
+    def run_cont(self, chat_state, prompt):
+        if content_in := prompt:
+            chat_state.append({"role": "user", "content": content_in})
+
+            content_out = ""
+            message_out = {"role": "assistant", "content": ""}
+
+            for response in ollama.chat(model='mistral', messages=chat_state, stream=True):
+                if response['done']:
+                    chat_state.append(message_out)
+                
+                content = response['message']['content']
+                print(content, end='', flush=True)
+                
+                content_out += content
+                if content in ['.', '!', '?', '\n']:
+                    content_out += ''
+
+                message_out['content'] += content
+
+            if content_out:
+                chat_state.append(message_out)
+
+            return chat_state, message_out
