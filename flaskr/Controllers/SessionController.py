@@ -73,7 +73,8 @@ class SessionController:
             print(f"Classifying results done. Time spent {time.time() - time_start_classifying}")
             classification_helper = ClassificationHelper(classification_result)
 
-            classification_feat_des = classification_helper.set_classification_feat_des(dataset_info_helper.features_des)          
+            classification_helper.set_classification_feat_des(dataset_info_helper.features_des)
+            classification_feat_des = classification_helper.get_classification_feat_des()
 
             # Create init prompt helper
             print("Setting up the prompts...")
@@ -127,11 +128,9 @@ class SessionController:
             curr_state_results_dict = {}
             pred_state_results_dict = {}
 
-            i = 0
-            for feature in classification_feat_des:
-                curr_state_results_dict[feature] = curr_state_results_temp[i]
-                pred_state_results_dict[feature] = pred_state_results_temp[i]
-                i += 1
+            for i in range(len(classification_feat_des)):
+                curr_state_results_dict[classification_feat_des[i]] = curr_state_results_temp[i]
+                pred_state_results_dict[classification_feat_des[i]] = pred_state_results_temp[i]
 
             init_prompt_helper.set_res_curr_states(curr_state_results_dict)
             init_prompt_helper.set_res_pred_states(pred_state_results_dict)            
@@ -152,7 +151,7 @@ class SessionController:
                 },
                 'classification_result': {
                     'classified_amount': classification_result['amount'],
-                    'classified_features': classification_feat_des,
+                    'classified_features': classification_helper.classification_feat_des,
                     'classified_label': classification_result['label']
                 },
                 'dataset_info': {

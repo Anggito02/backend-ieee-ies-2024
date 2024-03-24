@@ -71,4 +71,6 @@ class ModelRunner:
             if content_out:
                 chat_state.append(message_out)
 
+            print()
+
             return chat_state, message_out

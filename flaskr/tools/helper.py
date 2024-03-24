@@ -134,7 +134,7 @@ class InitPromptHelper:
         predicted_csv = df.to_csv(index=False, header=True, sep=',', line_terminator='\n')
 
         for i in range(len(features_list)):
-            features_list[i] = f"'{features_list[i]}'"
+            features_list[i] = f"{features_list[i]}"
 
         features = ", ".join(features_list)
 
@@ -169,20 +169,14 @@ class InitPromptHelper:
     def get_prompt_pred_states(self):
         return self.prompt_pred_states
     
-    def set_res_curr_states(self, curr_states):
-        for feature_result in curr_states:
-            self.res_curr_states[feature_result] = curr_states[feature_result]
-
-        return self.res_curr_states
+    def set_res_curr_states(self, curr_states_dict):
+        self.res_curr_states = curr_states_dict
 
     def get_res_curr_states(self):
         return self.res_curr_states
     
-    def set_res_pred_states(self, pred_states):
-        for feature_result in pred_states:
-            self.res_pred_states[feature_result] = pred_states[feature_result]
-
-        return self.res_pred_states
+    def set_res_pred_states(self, pred_states_feat_dict):
+        self.res_pred_states = pred_states_feat_dict
 
     def get_res_pred_states(self):
         return self.res_pred_states
@@ -207,7 +201,8 @@ class ClassificationHelper:
     def set_classification_feat_des(self, dataset_feature_des):
         for idx in self.classification_index_features:
             self.classification_feat_des.append(dataset_feature_des[idx])
-        
+
+    def get_classification_feat_des(self):
         return self.classification_feat_des
     
 class ChatContHelper:
